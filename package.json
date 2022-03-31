@@ -4,7 +4,7 @@
     "build": "npm run build:back && npm run build:front && npm run copyBuild && npm run rm && mkdir ./build && npm run copyAllBuild && npm run copySrc && npm run modules",
     "build:back": "cd ./server && npm run build",
     "build:front": "cd ./app && npm run build",
-    "copyBuild":"cp -R ./app/build ./build && cp -R ./app/build/ ./build/app",
+    "copyBuild": "cp -R ./app/build ./build && cp -R ./app/build/ ./build/app",
     "modules": "cp -R ./server/node_modules ./build/node_modules",
     "rm": "rm -R ./build",
     "copyAllBuild": "cp -R ./server/build/ ./build/server && cp -R ./app/build/ ./build/app",

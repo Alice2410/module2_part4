@@ -1,6 +1,4 @@
 import * as http from "http";
-import * as path from "path";
-import * as fs from "fs";
 import * as config from "./config"
 import express, {NextFunction, Request, Response} from "express";
 import upload, { UploadedFile } from "express-fileupload";
@@ -9,10 +7,20 @@ import * as pageOperations from './page_operations';
 import { responseObj } from "./page_operations";
 import morgan from 'morgan'
 import * as rfs from "rotating-file-stream";
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 const token = { token: "token" };
 const PORT = 8000;
 const app = express();
+
+
+
+dotenv.config()
+
+const dbURL = process.env.DB_CONN as string;
+console.log(dbURL)
+mongoose.connect(dbURL)
 
 const generator = () => {
     let ISOTime = (new Date(Date.now())).toISOString().slice(0, -5).replace( /[T]/, '_');
