@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as url from "url";
 import * as config from "./config"
 
-const picOnPage = 4;
 const path = config.IMAGES_PATH;
+let picOnPage: number;
 
 interface responseObj {
     objects: string[];
@@ -13,6 +13,12 @@ interface responseObj {
 
 interface Error{
     errorMessage: string;
+}
+
+function getLimit(reqURL: string) {
+    console.log(reqURL);
+    picOnPage = parseInt(url.parse(reqURL, true).query.limit as string);
+    console.log(picOnPage);
 }
 
 async function getArrayLength () { //вычисляет количество картинок всего
@@ -71,4 +77,4 @@ function checkPage(resObj: responseObj) {
     return false;
 }
 
-export {getTotal, getCurrentPage, getRequestedImages, checkPage, getArrayLength, responseObj};
+export {getTotal, getCurrentPage, getLimit, getRequestedImages, checkPage, getArrayLength, responseObj};

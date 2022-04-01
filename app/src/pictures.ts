@@ -1,10 +1,11 @@
+import { Token, basicGalleryURL, Gallery, tokenTimestampKey, localStorageTokenKey } from "./url.js";
 const linksList = document.getElementById('links');
 const uploadImageForm = document.getElementById('upload') as HTMLFormElement;
 const uploadFile = document.getElementById("file") as HTMLInputElement;
 let formData = new FormData();
 let tokenObject: Token;
 
-setInterval(checkTokenIs, 8000);
+setInterval(checkTokenIs, 5000);
 checkLocalStorage();
 goToNewGalleryPage();
 linksList?.addEventListener("click", createNewAddressOfCurrentPage);
@@ -140,8 +141,11 @@ function checkLocalStorage () {
 }
 
 function createNewAddressOfCurrentPage(e: Event) {
+    let currentPage = window.location.href;
+    let params = new URL(currentPage).searchParams;
+    let limit = params.get('limit');
     let number = (e.target as HTMLLinkElement).textContent;
-    window.location.href = "gallery.html" + "?page=" + number;
+    window.location.href = "gallery.html" + "?page=" + number + "&limit=" + limit;
 }
 
 function writeErrorMessage (message: string, response: Response) {
