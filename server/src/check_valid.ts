@@ -1,6 +1,6 @@
-import { validUsers } from './valid_users'
+import { validUsers} from './valid_users'
 
-interface UserLog {
+export interface UserLog {
     email: string;
     password: string;
 }
