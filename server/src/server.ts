@@ -1,17 +1,15 @@
 import * as http from "http";
-import * as config from "./config"
-import express, {NextFunction, Request, Response} from "express";
-import upload, { UploadedFile } from "express-fileupload";
-import { checkValidUserData, UserLog } from './check_valid';
-import * as pageOperations from './page_operations';
-import { responseObj } from "./page_operations";
-import morgan from 'morgan'
 import * as rfs from "rotating-file-stream";
+import * as config from "./config";
+import * as pageOperations from './page_operations';
+import morgan from "morgan";
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { User } from './models/user'
-import { validUsers } from "./valid_users";
-
+import express, {NextFunction, Request, Response} from "express";
+import upload, { UploadedFile } from "express-fileupload";
+import { checkUser } from './check_valid';
+import { saveUser } from "./add_users";
+import { responseObj } from "./page_operations";
 
 const token = { token: "token" };
 const PORT = 5000;
@@ -21,67 +19,12 @@ dotenv.config()
 const dbURL = process.env.DB_CONN as string;
 
 async function connectToDB() {
-    let connectRes = await mongoose.connect(dbURL);
+    await mongoose.connect(dbURL);
     console.log('connected to DB'); 
 }
 
 connectToDB();
 saveUser()
-
-async function saveUser() {
-    
-    try {
-        let userEmailsArr = Object.keys(validUsers);
-        console.log('users arr: ' + userEmailsArr);
-        console.log('length: ' + userEmailsArr.length);
-
-        for (let i = 0; i < userEmailsArr.length; i++) {
-
-            let userEmail = userEmailsArr[i];
-            console.log('user email: ' +userEmail);
-            let userIsExist = await User.exists({email: userEmail});
-
-            if (!userIsExist) {
-                try{
-                    console.log('user exist: ' + userIsExist)
-                    console.log('password: ' + validUsers[userEmail])
-                    let user = await User.create({email: userEmail, password: validUsers[userEmail]})
-                    console.log('user obj: ' + user);
-                } catch(err) {
-                    let error = err as Error;
-                    console.log(error.message)
-                }
-            }
-            
-        }
-    } catch (err) {
-        let error = err as Error;
-        console.log(error.message)
-    }
-}
-
-async function checkUser(reqBody: UserLog) {
-    
-    try {
-        const userEmail = reqBody.email;
-        const userIsExist = await User.exists({email: userEmail});
-
-        if(userIsExist) {
-            const userData = await User.find({email: userEmail});
-            const validPassword: string = userData[0].password;
-            const isValid = (reqBody.password === validPassword);
-
-            return isValid;
-        } 
-
-        return false;
-    } catch(err) {
-        let error = err as Error;
-        console.log(error.message)
-    }
-}
- 
-
 
 const generator = () => {
     let ISOTime = (new Date(Date.now())).toISOString().slice(0, -5).replace( /[T]/, '_');
