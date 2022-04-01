@@ -12,7 +12,13 @@ export interface Error {
 }
 
 export interface Gallery {
-    objects: string[];
+    objects: ImageObject[];
     page: number;
     total: number;
+}
+
+export interface ImageObject {
+    id: string;
+    path: string;
+    metadata: object;
 }

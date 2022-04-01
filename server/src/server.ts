@@ -9,6 +9,7 @@ import express, {NextFunction, Request, Response} from "express";
 import upload, { UploadedFile } from "express-fileupload";
 import { checkUser } from './check_valid';
 import { saveUser } from "./add_users";
+import { saveImages } from "./add_images";
 import { responseObj } from "./page_operations";
 
 const token = { token: "token" };
@@ -23,8 +24,12 @@ async function connectToDB() {
     console.log('connected to DB'); 
 }
 
-connectToDB();
-saveUser()
+connectToDB()
+.then(() => {
+    saveUser();
+    saveImages();
+})
+
 
 const generator = () => {
     let ISOTime = (new Date(Date.now())).toISOString().slice(0, -5).replace( /[T]/, '_');
@@ -82,7 +87,7 @@ app.get('/gallery', async (req, res) => {
                
         const reqUrl = req.url;
         const resObj = {
-            objects: [''],
+            objects: [{}],
             page: 0,
             total: 0,
         }
@@ -145,6 +150,8 @@ async function getUploadedFileName(file: UploadedFile, res: Response) {
             res.end() 
         }
     })
+    
+    // let image = await Image.create({id: i, path: imagePath, metadata: metadata})
 }
 
 function checkToken (req: Request, res: Response, next: NextFunction) {

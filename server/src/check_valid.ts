@@ -1,4 +1,3 @@
-import { validUsers} from './valid_users'
 import { User } from './models/user'
 
 interface UserLog {
@@ -13,8 +12,8 @@ export async function checkUser(reqBody: UserLog) {
         const userIsExist = await User.exists({email: userEmail});
 
         if(userIsExist) {
-            const userData = await User.find({email: userEmail});
-            const validPassword: string = userData[0].password;
+            const userData = await User.findOne({email: userEmail});
+            const validPassword: string = userData.password;
             const isValid = (reqBody.password === validPassword);
 
             return isValid;
@@ -27,10 +26,4 @@ export async function checkUser(reqBody: UserLog) {
     }
 }
 
-// export function checkValidUserData (userObj: UserLog) {
-//     const userEmail = userObj.email;
-//     const isValid = (validUsers[userEmail] && (validUsers[userEmail] === userObj.password));
-
-//     return isValid;
-// }
 

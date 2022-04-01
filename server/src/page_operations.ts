@@ -1,12 +1,14 @@
 import * as fs from "fs";
 import * as url from "url";
 import * as config from "./config"
+import mongoose from 'mongoose';
+import { Image } from "./models/image";
 
 const path = config.IMAGES_PATH;
 let picOnPage: number;
 
 interface responseObj {
-    objects: string[];
+    objects: object[];
     page: number;
     total: number;
 }
@@ -28,7 +30,7 @@ async function getArrayLength () { //вычисляет количество к�
     return arrLength;
 }
 
-async function getImagesArr() { //получает массив строк с адресами всех картинок
+export async function getImagesArr() { //получает массив строк с адресами всех картинок
     
     let imagesArr = await fs.promises.readdir(path);
     return imagesArr;
@@ -54,13 +56,15 @@ function getCurrentPage(obj: responseObj, reqURL: string) { //назначает
 
 async function getRequestedImages(resObj: responseObj) { //назначает OBJECTS
    
-    const arrForPage: string[] = [];
+    const arrForPage: object[] = [];
     const page = resObj.page;
     const picArr = await getImagesArr();
 
     for (let i = picOnPage * (page - 1); i < picOnPage * page; i++) {
-        if (picArr[i]) {
-            arrForPage.push(picArr[i]);
+        const imageIsExist = await Image.exists({id: i});
+        if(imageIsExist) {
+            let image = await Image.findOne({id: i})
+            arrForPage.push(image);
         }
     }
 
