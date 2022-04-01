@@ -1,16 +1,16 @@
-# Module2_Part3
+# Module2_Part4
 `Project author:` Alice Bushlya
 
-[**Issues**](https://github.com/Alice2410/module2_part3/issues)
+[**Issues**](https://github.com/Alice2410/module2_part4/issues)
 
 ---
 
 
-The project was created for educational purposes to learn basics of HTML, CSS, TS, Node.js and Express.
+The project was created for educational purposes to learn basics of HTML, CSS, TS, Node.js, Express and MongoDB.
 
 ---
 
-In this project, a server was implemented that processes requests from the client and sends information about the token and about the gallery with pictures. Also client can upload new images.
+In this project, a server was implemented that processes requests from the client and sends information about the token and about the gallery with pictures. Client can upload new images. Information about users and images is srored in DB.
 
 ---
 ## How to Use
