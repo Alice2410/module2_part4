@@ -53,19 +53,23 @@ function getCurrentPage(obj: responseObj, reqURL: string) { //назначает
 
 async function getRequestedImages(resObj: responseObj) { //назначает OBJECTS
    
-    const arrForPage: object[] = [];
+    // let arrForPage: object[] = [];
     const page = resObj.page;
     const picArr = await getImagesArr();
 
-    for (let i = picOnPage * (page - 1); i < picOnPage * page; i++) {
-        const imageIsExist = await Image.exists({id: i});
-        if(imageIsExist) {
-            let image = await Image.findOne({id: i})
-            arrForPage.push(image);
-        }
-    }
+    // for (let i = picOnPage * (page - 1); i < picOnPage * page; i++) {
+    //     // const imageIsExist = await Image.exists({id: i});
+    //     // if(imageIsExist) {
+    //         let image = await Image.findOne({id: i})
+    //         arrForPage.push(image);
+    //     // }
+    // }
 
-    resObj.objects = arrForPage;
+    let arrForPage = await Image.find({}, null, {skip: picOnPage * page - picOnPage, limit: picOnPage});
+
+    console.log('arr for page: ' + arrForPage)
+
+    resObj.objects = arrForPage as unknown as object[];
 
     return resObj;
 }
