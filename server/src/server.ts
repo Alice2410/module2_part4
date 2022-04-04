@@ -1,18 +1,37 @@
 import * as http from "http";
-import * as path from "path";
-import * as fs from "fs";
-import * as config from "./config"
+import * as rfs from "rotating-file-stream";
+import * as config from "./config";
+import * as pageOperations from './page_operations';
+import morgan from "morgan";
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import express, {NextFunction, Request, Response} from "express";
 import upload, { UploadedFile } from "express-fileupload";
-import { checkValidUserData } from './check_valid';
-import * as pageOperations from './page_operations';
+import { checkUser } from './check_valid';
+import { saveUser } from "./add_users";
+import { saveImages } from "./add_images";
 import { responseObj } from "./page_operations";
-import morgan from 'morgan'
-import * as rfs from "rotating-file-stream";
+import { deleteUserImages } from "./delete_images";
 
 const token = { token: "token" };
-const PORT = 8000;
+const PORT = 5000;
 const app = express();
+
+dotenv.config()
+const dbURL = process.env.DB_CONN as string;
+
+async function connectToDB() {
+    await mongoose.connect(dbURL);
+    console.log('connected to DB'); 
+}
+
+connectToDB()
+.then(() => deleteUserImages())
+.then(() => {
+    saveUser();
+    saveImages();
+})
+
 
 const generator = () => {
     let ISOTime = (new Date(Date.now())).toISOString().slice(0, -5).replace( /[T]/, '_');
@@ -31,9 +50,9 @@ app.use('/', express.static(config.SCRIPTS_STATIC_PATH), express.static(config.S
 
 app.use(express.json());
 
-app.post('/authorization', (req, res) => {
-
-    if (checkValidUserData(req.body)) { //проверка данных пользователя
+app.post('/authorization', async (req, res) => {
+    let result = await checkUser(req.body);
+    if (result) { //проверка данных пользователя
 
         res.statusCode = 200;
         res.end(JSON.stringify(token));
@@ -57,7 +76,7 @@ app.post('/gallery', async (req, res) => {
             
             let file = req.files.file as UploadedFile;
 
-            getUploadedFileName(file, res)
+            await getUploadedFileName(file, res);
         }
     } catch(err) {
         let error = err as Error
@@ -66,17 +85,17 @@ app.post('/gallery', async (req, res) => {
     
 });
 
-app.get('/gallery', (req, res) => {
+app.get('/gallery', async (req, res) => {
                
         const reqUrl = req.url;
         const resObj = {
-            objects: [''],
+            objects: [{}],
             page: 0,
             total: 0,
         }
 
         try {
-            sendResponse(resObj, reqUrl, res);
+            await sendResponse(resObj, reqUrl, res);
         } catch (error) {
             console.log(error);
         }
@@ -84,7 +103,7 @@ app.get('/gallery', (req, res) => {
 })
 
 app.use((req, res) => {
-    res.redirect('http://localhost:8000/404.html')
+    res.redirect('http://localhost:5000/404.html')
 })
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
@@ -94,6 +113,7 @@ function sendNotFoundStatus (resObj: responseObj, res: http.ServerResponse) {
     if (!pageOperations.checkPage(resObj)) {
         res.statusCode = 404;
         res.end();
+        return false;
     } 
 
     return resObj;
@@ -101,19 +121,19 @@ function sendNotFoundStatus (resObj: responseObj, res: http.ServerResponse) {
 
 async function sendResponse (resObj: responseObj, reqUrl: string, res: http.ServerResponse) {
     
+    pageOperations.getLimit(reqUrl);
     await pageOperations.getTotal(resObj);
     pageOperations.getCurrentPage(resObj, reqUrl);
 
     try {
-        sendNotFoundStatus(resObj, res);
+        if (sendNotFoundStatus(resObj, res)) {
+            await pageOperations.getRequestedImages(resObj);
+            res.statusCode = 200;
+            res.end(JSON.stringify(resObj));
+        }
     } catch (err) {
         return err;
     }
-    
-    await pageOperations.getRequestedImages(resObj);
-    res.statusCode = 200;
-    res.end(JSON.stringify(resObj));
-
 }
 
 async function getUploadedFileName(file: UploadedFile, res: Response) {
@@ -124,12 +144,17 @@ async function getUploadedFileName(file: UploadedFile, res: Response) {
 
     let newFileName = 'user-' + number + '_' +  noSpaceFileName;
 
-    file.mv((config.IMAGES_PATH + newFileName), (err: Error) => {
+    file.mv((config.IMAGES_PATH + newFileName), async (err: Error) => {
     
         if(err){
             res.send (err);
-        } 
-        res.end() 
+        } else {
+            // await saveImages();
+            let id = (number - 1).toString();
+            let path = newFileName;
+            await saveImages(id, path);
+            res.end() 
+        }
     })
 }
 

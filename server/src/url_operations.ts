@@ -1,5 +1,4 @@
 import * as http from "http";
-import * as path from "path";
 
 export {getCurrentUrl};
 

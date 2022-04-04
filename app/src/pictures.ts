@@ -1,10 +1,11 @@
+import { Token, basicGalleryURL, Gallery, tokenTimestampKey, localStorageTokenKey, ImageObject } from "./url.js";
 const linksList = document.getElementById('links');
 const uploadImageForm = document.getElementById('upload') as HTMLFormElement;
 const uploadFile = document.getElementById("file") as HTMLInputElement;
 let formData = new FormData();
 let tokenObject: Token;
 
-setInterval(checkTokenIs, 8000);
+setInterval(checkTokenIs, 1000);
 checkLocalStorage();
 goToNewGalleryPage();
 linksList?.addEventListener("click", createNewAddressOfCurrentPage);
@@ -87,12 +88,18 @@ function createLinks(imagesObject: Gallery){
 }
 
 function createImages(imagesObject: Gallery) {
-        let imagesArray = imagesObject.objects;
+        let imagesObjArray = imagesObject.objects;
+        let imagesPathArr: string[] = [];
+        for (let i = 0; i < imagesObjArray.length; i++) {
+            let imageObject: ImageObject = imagesObjArray[i];
+            let imagePath = imageObject.path;
+            imagesPathArr.push(imagePath);
+        }
         let imageSection = document.getElementById("photo-section");
 
-        for ( let i = 0; i < imagesArray.length; i++) {
+        for ( let i = 0; i < imagesPathArr.length; i++) {
             let galleryImage = document.createElement('img');
-            galleryImage.src = './resources/images/' + imagesArray[i];
+            galleryImage.src = './resources/images/' + imagesPathArr[i];
             imageSection?.append(galleryImage);
         }
 }
@@ -140,8 +147,11 @@ function checkLocalStorage () {
 }
 
 function createNewAddressOfCurrentPage(e: Event) {
+    let currentPage = window.location.href;
+    let params = new URL(currentPage).searchParams;
+    let limit = params.get('limit');
     let number = (e.target as HTMLLinkElement).textContent;
-    window.location.href = "gallery.html" + "?page=" + number;
+    window.location.href = "gallery.html" + "?page=" + number + "&limit=" + limit;
 }
 
 function writeErrorMessage (message: string, response: Response) {

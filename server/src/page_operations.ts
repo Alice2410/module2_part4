@@ -1,18 +1,23 @@
 import * as fs from "fs";
 import * as url from "url";
 import * as config from "./config"
+import { Image } from "./models/image";
 
-const picOnPage = 4;
 const path = config.IMAGES_PATH;
+let picOnPage: number;
 
 interface responseObj {
-    objects: string[];
+    objects: object[];
     page: number;
     total: number;
 }
 
 interface Error{
     errorMessage: string;
+}
+
+function getLimit(reqURL: string) {
+    picOnPage = parseInt(url.parse(reqURL, true).query.limit as string);
 }
 
 async function getArrayLength () { //вычисляет количество картинок всего
@@ -22,9 +27,9 @@ async function getArrayLength () { //вычисляет количество к�
     return arrLength;
 }
 
-async function getImagesArr() { //получает массив строк с адресами всех картинок
-    
+export async function getImagesArr() { //получает массив строк с адресами всех картинок
     let imagesArr = await fs.promises.readdir(path);
+    
     return imagesArr;
 }
 
@@ -48,17 +53,23 @@ function getCurrentPage(obj: responseObj, reqURL: string) { //назначает
 
 async function getRequestedImages(resObj: responseObj) { //назначает OBJECTS
    
-    const arrForPage: string[] = [];
+    // let arrForPage: object[] = [];
     const page = resObj.page;
     const picArr = await getImagesArr();
 
-    for (let i = picOnPage * (page - 1); i < picOnPage * page; i++) {
-        if (picArr[i]) {
-            arrForPage.push(picArr[i]);
-        }
-    }
+    // for (let i = picOnPage * (page - 1); i < picOnPage * page; i++) {
+    //     // const imageIsExist = await Image.exists({id: i});
+    //     // if(imageIsExist) {
+    //         let image = await Image.findOne({id: i})
+    //         arrForPage.push(image);
+    //     // }
+    // }
 
-    resObj.objects = arrForPage;
+    let arrForPage = await Image.find({}, null, {skip: picOnPage * page - picOnPage, limit: picOnPage});
+
+    console.log('arr for page: ' + arrForPage)
+
+    resObj.objects = arrForPage as unknown as object[];
 
     return resObj;
 }
@@ -71,4 +82,4 @@ function checkPage(resObj: responseObj) {
     return false;
 }
 
-export {getTotal, getCurrentPage, getRequestedImages, checkPage, getArrayLength, responseObj};
+export {getTotal, getCurrentPage, getLimit, getRequestedImages, checkPage, getArrayLength, responseObj};
