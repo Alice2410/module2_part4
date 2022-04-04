@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as url from "url";
 import * as config from "./config"
-import mongoose from 'mongoose';
 import { Image } from "./models/image";
 
 const path = config.IMAGES_PATH;
@@ -18,9 +17,7 @@ interface Error{
 }
 
 function getLimit(reqURL: string) {
-    console.log(reqURL);
     picOnPage = parseInt(url.parse(reqURL, true).query.limit as string);
-    console.log(picOnPage);
 }
 
 async function getArrayLength () { //вычисляет количество картинок всего
@@ -31,8 +28,8 @@ async function getArrayLength () { //вычисляет количество к�
 }
 
 export async function getImagesArr() { //получает массив строк с адресами всех картинок
-    
     let imagesArr = await fs.promises.readdir(path);
+    
     return imagesArr;
 }
 

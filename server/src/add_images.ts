@@ -2,10 +2,13 @@ import { Image } from './models/image';
 import { getImagesArr } from './page_operations';
 import { getMetadata } from './get_metadata';
 
-export async function saveImages() {
+export async function saveImages(id?: string, path?: string) {
     let imagesPathsArr = await getImagesArr();
-    console.log('images arr: ' + imagesPathsArr);
-
+    if( id && path) {
+        let result = await addImage(id, path);
+        console.log(result)
+    } else {
+    
     for(let i = 0; i < imagesPathsArr.length; i++) {
         console.log(i);
         
@@ -13,10 +16,9 @@ export async function saveImages() {
 
         if(!imageIsExist) {
             try{
-                console.log('image is exist: ' +imageIsExist);
                 let imagePath = imagesPathsArr[i];
-                let metadata = await getMetadata(imagePath);
-                let image = await Image.create({id: i, path: imagePath, metadata: metadata})
+                let id = i.toString();
+                let image = await addImage(id, imagePath)
                 console.log('image obj: ' + image)
             } catch(err) {
                 let error = err as Error;
@@ -24,4 +26,12 @@ export async function saveImages() {
             }
         }
     }
+}
+}
+
+    
+export async function addImage (id: string, imagePath: string) {
+    let metadata = await getMetadata(imagePath);
+    let image = await Image.create({id: id, path: imagePath, metadata: metadata})
+    return image;
 }

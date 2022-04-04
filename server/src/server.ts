@@ -11,6 +11,7 @@ import { checkUser } from './check_valid';
 import { saveUser } from "./add_users";
 import { saveImages } from "./add_images";
 import { responseObj } from "./page_operations";
+import { deleteUserImages } from "./delete_images";
 
 const token = { token: "token" };
 const PORT = 5000;
@@ -25,6 +26,7 @@ async function connectToDB() {
 }
 
 connectToDB()
+.then(() => deleteUserImages())
 .then(() => {
     saveUser();
     saveImages();
@@ -74,7 +76,7 @@ app.post('/gallery', async (req, res) => {
             
             let file = req.files.file as UploadedFile;
 
-            getUploadedFileName(file, res)
+            await getUploadedFileName(file, res);
         }
     } catch(err) {
         let error = err as Error
@@ -142,16 +144,18 @@ async function getUploadedFileName(file: UploadedFile, res: Response) {
 
     let newFileName = 'user-' + number + '_' +  noSpaceFileName;
 
-    file.mv((config.IMAGES_PATH + newFileName), (err: Error) => {
+    file.mv((config.IMAGES_PATH + newFileName), async (err: Error) => {
     
         if(err){
             res.send (err);
         } else {
+            // await saveImages();
+            let id = (number - 1).toString();
+            let path = newFileName;
+            await saveImages(id, path);
             res.end() 
         }
     })
-    
-    // let image = await Image.create({id: i, path: imagePath, metadata: metadata})
 }
 
 function checkToken (req: Request, res: Response, next: NextFunction) {
