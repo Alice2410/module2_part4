@@ -160,7 +160,6 @@ async function getUploadedFileName(file: UploadedFile, res: Response) {
 
 function checkToken (req: Request, res: Response, next: NextFunction) {
     const headers = req.headers;
-
     if (headers.authorization === 'token') {  
         next()
     } else {
