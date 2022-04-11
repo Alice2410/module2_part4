@@ -9,7 +9,7 @@ import express, {NextFunction, Request, Response} from "express";
 import upload, { UploadedFile } from "express-fileupload";
 import { checkUser } from './check_valid';
 import { saveUser } from "./add_users";
-import { saveImages } from "./add_images";
+import { saveImagesToDB } from "./add_images";
 import { responseObj } from "./page_operations";
 import { deleteUserImages } from "./delete_images";
 
@@ -29,7 +29,7 @@ connectToDB()
 .then(() => deleteUserImages())
 .then(() => {
     saveUser();
-    saveImages();
+    saveImagesToDB();
 })
 
 
@@ -149,10 +149,9 @@ async function getUploadedFileName(file: UploadedFile, res: Response) {
         if(err){
             res.send (err);
         } else {
-            // await saveImages();
             let id = (number - 1).toString();
             let path = newFileName;
-            await saveImages(id, path);
+            await saveImagesToDB(id, path);
             res.end() 
         }
     })

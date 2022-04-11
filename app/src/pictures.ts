@@ -89,17 +89,14 @@ function createLinks(imagesObject: Gallery){
 
 function createImages(imagesObject: Gallery) {
         let imagesObjArray = imagesObject.objects;
-        let imagesPathArr: string[] = [];
-        for (let i = 0; i < imagesObjArray.length; i++) {
-            let imageObject: ImageObject = imagesObjArray[i];
-            let imagePath = imageObject.path;
-            imagesPathArr.push(imagePath);
-        }
+        let imagesPathsArr = imagesObjArray.map(imageObject => imageObject.path);
+
         let imageSection = document.getElementById("photo-section");
 
-        for ( let i = 0; i < imagesPathArr.length; i++) {
+        for (const imgPath of imagesPathsArr) {
             let galleryImage = document.createElement('img');
-            galleryImage.src = './resources/images/' + imagesPathArr[i];
+            
+            galleryImage.src = './resources/images/' + imgPath;
             imageSection?.append(galleryImage);
         }
 }

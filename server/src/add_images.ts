@@ -2,8 +2,9 @@ import { Image } from './models/image';
 import { getImagesArr } from './page_operations';
 import { getMetadata } from './get_metadata';
 
-export async function saveImages(id?: string, path?: string) {
+export async function saveImagesToDB(id?: string, path?: string) {
     let imagesPathsArr = await getImagesArr();
+    
     if( id && path) {
         let result = await addImage(id, path);
         console.log(result)
