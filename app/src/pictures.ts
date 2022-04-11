@@ -149,9 +149,9 @@ function checkLocalStorage () {
 function createNewAddressOfCurrentPage(e: Event) {
     let currentPage = window.location.href;
     let params = new URL(currentPage).searchParams;
-    let limit = params.get('limit');
-    let number = (e.target as HTMLLinkElement).textContent;
-    window.location.href = "gallery.html" + "?page=" + number + "&limit=" + limit;
+    let number = (e.target as HTMLLinkElement).textContent as string;
+    params.set('page', number)
+    window.location.href = "gallery.html?" + params;
 }
 
 function writeErrorMessage (message: string, response: Response) {

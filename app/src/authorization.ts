@@ -54,7 +54,6 @@ function redirect() {
         let searchParams = new URLSearchParams(params);
         searchParams.append('page', '1');
         searchParams.append('limit', '2');
-        // window.location.href = "gallery.html" + "?page=1" + "&limit=2";
         window.location.href = "gallery.html?" + searchParams;
     }
 }
